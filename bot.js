@@ -85,6 +85,10 @@ client.on("messageCreate", function(message) {
     const args = commandBody.split(' ');
     const command = args.shift().toLowerCase();
 
+    if(prefix === "~") {
+        message.reply('Why hello there. You have stumbled upon my unstable development build. Please use "&" as a prefix unless you know what you are doing.');
+    }
+
     switch(command) {
         case 'ping':
             ping(message);
