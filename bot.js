@@ -16,7 +16,12 @@ const pool = new Pool({
 });
 
 const client = new Discord.Client({intents: ["GUILDS", "GUILD_MESSAGES","GUILD_MEMBERS"]});
-const prefix = "&";
+
+let prefix = "&";
+
+if(auth.debug == true) {
+    prefix = '~';
+}
 
 let commandsActive = true;
 
