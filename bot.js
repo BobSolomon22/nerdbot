@@ -507,19 +507,13 @@ async function getCurrentRole(currentGuild, roleid) {
 async function handleBirthday(guildid, userid, channelid, roleid, wantsattention) {
     let currentGuild = await getCurrentGuild(guildid);
     let currentGuildUser = await getCurrentGuildUser(currentGuild, userid);
-    let currentUsername = currentGuildUser.user.username;
-    let currentNickname = currentGuildUser.nickname;
 
     try {
         let currentChannel = await getCurrentChannel(currentGuild, channelid);
         let currentRole = await getCurrentRole(currentGuild, roleid);
 
         if(wantsattention === true) {
-            let displayName = currentUsername;
-            if(currentNickname != null) {
-                displayName = currentNickname;
-            }
-            currentChannel.send(`Today is ${displayName}'s birthday!!!`);
+            currentChannel.send(`@everyone Today is <@${userid}>'s birthday!!!`);
         }
     
         currentGuildUser.roles.add(currentRole);
