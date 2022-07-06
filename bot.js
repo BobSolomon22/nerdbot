@@ -121,23 +121,27 @@ client.on("messageCreate", function(message) {
         // ------admin only commands------
         
         case 'update':
-            updateAdminCheck(message);
+            adminCheck(message, args, update);
             break;
 
         case 'editbday':
-            editbdayAdminCheck(message, args);
+            adminCheck(message, args, editbday);
             break;
         
         case 'setchannel':
-            setChannelAdminCheck(message, args);
+            adminCheck(message, args, setChannel);
             break;
 
         case 'setrole':
-            setRoleAdminCheck(message, args);
+            adminCheck(message, args, setRole);
             break;
 
         case 'adminstatus':
-            adminStatusAdminCheck(message);
+            adminCheck(message, args, adminStatus);
+            break;
+
+        case 'autodelete':
+            adminCheck(message, args, autoDelete);
             break;
 
         default:
@@ -470,20 +474,11 @@ async function adminStatus(message) {
     message.reply(statusString);
 }
 
+async function autoDelete(message, args) {
+    message.reply("Entered autodelete! Huzzah!");
+}
+
 // ------ OTHER FUNCTIONS ------
-
-async function addRole(message, userId) {
-    let guildMember = await message.guild.members.fetch(userId);
-    let role = await message.guild.roles.fetch(auth.roleid);
-    guildMember.roles.add(role);
-}
-
-async function removeRole(message, userId) {
-    let guildMember = await message.guild.members.fetch(userId);
-    let role = await message.guild.roles.fetch(auth.roleid);
-    guildMember.roles.remove(role);
-}
-
 async function getCurrentGuild(guildid) {
     let currentGuild =  await client.guilds.fetch(guildid);
     return currentGuild;
@@ -559,55 +554,15 @@ async function handleUnbirthday(guildid, userid, roleid) {
     
 }
 
-async function updateAdminCheck(message) {
+async function adminCheck(message, args, command) {
     const isAdmin = await checkAdminAuthor(message.author, message.guild);
-    if(isAdmin) {
-        update();
-        message.reply('Update complete.');
-    }
-    else {
-        message.reply('Insufficient permissions.');
-    }
-}
 
-async function editbdayAdminCheck(message, args) {
-    const isAdmin = await checkAdminAuthor(message.author, message.guild);
-    if(isAdmin) {
-        editbday(message, args);
-    }
-    else {
+    if(!isAdmin) {
         message.reply('Insufficient permissions.');
+        return;
     }
-}
-
-async function setChannelAdminCheck(message, args) {
-    const isAdmin = await checkAdminAuthor(message.author, message.guild);
-    if(isAdmin) {
-        setChannel(message, args);
-    }
-    else {
-        message.reply('Insufficient permissions.');
-    }
-}
-
-async function setRoleAdminCheck(message, args) {
-    const isAdmin = await checkAdminAuthor(message.author, message.guild);
-    if(isAdmin) {
-        setRole(message, args);
-    }
-    else {
-        message.reply('Insufficient permissions.');
-    }
-}
-
-async function adminStatusAdminCheck(message) {
-    const isAdmin = await checkAdminAuthor(message.author, message.guild);
-    if(isAdmin) {
-        adminStatus(message);
-    }
-    else {
-        message.reply('Insufficient permissions.');
-    }
+    
+    command(message, args);
 }
 
 async function update() {
@@ -654,33 +609,7 @@ async function update() {
     console.log('Update finished');
 }
 
-/*
-async function update(message) {
-    const userText = 'SELECT * FROM Users';
-
-    const userRegistry = await pool.query(userText);
-
-    const channel = await message.guild.channels.fetch(auth.channelid);
-    const today = new Date();
-    const currentMonth = today.getMonth() + 1;
-    const currentDay = today.getDate();
-    
-    userRegistry.rows.forEach(member => {
-        let month = member.birthmonth;
-        let day = member.birthdate;
-
-        if(month === currentMonth && day === currentDay) {
-            addRole(message, member.userid);
-            if(member.wantsattention === true) {
-                channel.send(`@everyone Today is ${member.username}'s birthday!!!`);
-            }
-        }
-        else {
-            removeRole(message, member.userid);
-        }
-    });
-}
-*/
+// ------ VALIDATION ------
 
 async function isPresentUser(userId) {
     const text = 'SELECT * FROM Users WHERE userid = $1';
