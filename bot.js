@@ -15,7 +15,7 @@ const pool = new Pool({
     port: auth.dbport
 });
 
-const client = new Discord.Client({intents: ["GUILDS", "GUILD_MESSAGES","GUILD_MEMBERS"]});
+const client = new Discord.Client({intents: ["GUILDS", "GUILD_MESSAGES","GUILD_MEMBERS","GUILD_PRESENCES"]});
 
 let prefix = "&";
 
@@ -69,6 +69,23 @@ client.on("guildDelete", guild => {
         }
         else {
             console.log(`Left guild ${guild}`);
+        }
+    });
+});
+
+client.on("guildMemberRemove", member => {
+    let guild = member.guild;
+    const text = `DELETE FROM GuildUsers WHERE userid = $1 AND guildid = $2`;
+    const values = [member.id, guild.id];
+
+    pool.query(text, values, (err, res) => {
+        if(err) {
+            console.log(err.stack);
+            return;
+        }
+        else {
+            console.log(`Removed guild user ${member.user.username}`);
+            guildMemberRemoveCheck(member);
         }
     });
 });
@@ -271,7 +288,7 @@ async function addme(message) {
     let author = message.author;
     let guild = message.guild;
     const isPresentUserValue = await isPresentUser(author.id);
-    const isPresentGuildUserValue = await isPresentGuildUser(author.id, guild.id);
+    const isPresentGuildUserValue = await isPresentInGuild(author.id, guild.id);
 
     if(!isPresentUserValue) {
         message.reply('You are not registered with me, please use &register first.');
@@ -302,7 +319,7 @@ async function removeme(message) {
     let author = message.author;
     let guild = message.guild;
     const isPresentUserValue = await isPresentUser(author.id);
-    const isPresentGuildUserValue = await isPresentGuildUser(author.id, guild.id);
+    const isPresentGuildUserValue = await isPresentInGuild(author.id, guild.id);
 
     if(!isPresentUserValue) {
         message.reply('You are not registered with me, and therefore not added to any servers. Use &register to register with me, then &addme to add yourself to a server.');
@@ -565,6 +582,25 @@ async function adminCheck(message, args, command) {
     command(message, args);
 }
 
+async function guildMemberRemoveCheck(member) {
+    let isPresentGuildUserValue = await isPresentGuildUser(member.id);
+
+    if(!isPresentGuildUserValue) {
+        const text = `DELETE FROM Users WHERE userid = $1`;
+        const values = [member.id];
+
+        pool.query(text, values, (err, res) => {
+            if(err) {
+                console.log(err.stack);
+                return;
+            }
+            else {
+                console.log(`Removed user ${member.user.username}`);
+            }
+        });
+    }
+}
+
 async function update() {
     const today = new Date();
     const currentMonth = today.getMonth() + 1;
@@ -623,9 +659,21 @@ async function isPresentUser(userId) {
     return false;
 }
 
-async function isPresentGuildUser(userId, guildId) {
+async function isPresentInGuild(userId, guildId) {
     const text = 'SELECT * FROM GuildUsers WHERE userid = $1 AND guildid = $2';
     const values = [userId, guildId];
+    const result = await pool.query(text, values);
+
+    if (result.rowCount > 0) {
+        return true;
+    }
+
+    return false;
+}
+
+async function isPresentGuildUser(userId) {
+    const text = 'SELECT * FROM GuildUsers WHERE userid = $1';
+    const values = [userId];
     const result = await pool.query(text, values);
 
     if (result.rowCount > 0) {
