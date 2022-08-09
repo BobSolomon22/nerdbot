@@ -118,6 +118,11 @@ client.on("messageCreate", function(message) {
             userStatus(message);
             break;
 
+        case 'roll':
+        case 'r':
+            roll(message, args);
+            break;
+
         // ------admin only commands------
         
         case 'update':
@@ -385,6 +390,59 @@ async function userStatus(message) {
     author.send(statusString);
 }
 
+function roll(message, args) {
+    let sides;
+    let modifier;
+    if(args.length < 1) {
+        message.reply('Please provide correct arguments: &roll sides [modifier]');
+        return;
+    }
+
+    sides = args[0];
+    
+    if(args.length == 1) {
+        modifier = 0;
+    }
+    else {
+        modifier = args[1];
+    }
+
+    if(sides[0].toLowerCase() === 'd') {
+        sides = sides.substring(1);
+    }
+    
+    if(!validateDieNum(sides) || !validateDieNum(modifier)) {
+        message.reply('Please use integers for these arguments.');
+        return;
+    }
+
+    if(sides <= 0) {
+        message.reply('First argument must be greater than 0.');
+        return;
+    }
+
+    if(sides > 999999 || modifier > 999999 || modifier <= -999999) {
+        message.reply('Whatever you are doing that requires such a high dice roll must be spectacular! I don\'t really want to handle that for you though. Sorry.');
+        return;
+    }
+
+    let result = rollDie(sides);
+    let response = `Result: ${parseInt(result) + parseInt(modifier)} (${result} + ${modifier})`;
+    if(result === 1) {
+        response += `. Ouch. Critical failure.`;
+    }
+    else if(result === parseInt(sides)) {
+        response += `! Wow! Nat ${sides}!`;
+    }
+    message.reply(response);
+}
+
+function rollDie(sides) {
+    result = Math.ceil(Math.random() * sides);
+    console.log(result);
+    return result;
+}
+
 async function setChannel(message, args) {
     let guild = message.guild;
     let guildChannels = guild.channels;
@@ -649,6 +707,12 @@ async function checkAdminAuthor(author, guild) {
 
 function validateNumber(num) {
     const pattern = /^[0-9]*$/;
+
+    return pattern.test(num);
+}
+
+function validateDieNum(num) {
+    const pattern = /^-?[0-9]*$/;
 
     return pattern.test(num);
 }
