@@ -24,3 +24,5 @@ Excellent question. There are several commands which can be used to interact wit
 &status: Sends the running user a private message containing information about their provided birthday, their admin status within a server, and whether their messages are activated or not.
 
 &ping: Checks NerdBot's availability and uptime statistics.
+
+&roll or &r: Roll some dice! The current syntax for rolling dice is as follows: &roll [number of dice]d[number of sides][+|-][modifier]. Number of dice and modifier are optional, they will default to 1 and +0 respectively if not specified. The result will be given as the total, a parenthetical breakdown of the individual die rolls, and the added (or subtracted) modifier at the end.
