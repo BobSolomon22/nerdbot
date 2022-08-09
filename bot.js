@@ -408,6 +408,87 @@ async function userStatus(message) {
 }
 
 function roll(message, args) {
+    if(args.length < 1) {
+        message.reply('I couldn\'t understand that. Usage:[number of dice]d[number of sides][+/-][modifier] Example: 4d8+4');
+        return;
+    }
+
+    let query = args[0];
+
+    const pattern = /^[0-9]*d[0-9]+(\+|\-)?[0-9]*$/;
+
+    if(!pattern.test(query)) {
+        message.reply(`I couldn't understand that. Usage:[number of dice]d[number of sides][+/-][modifier] Example: 4d8+4`);
+        return;
+    }
+
+    let toks = query.split('d');
+    let numdice = toks[0];
+
+    if(numdice === '') {
+        numdice = 1;
+    }
+    else {
+        numdice = parseInt(numdice);
+    }
+
+    if(numdice <= 0) {
+        message.reply(`Number of dice cannot be zero.`);
+        return;
+    }
+
+    toks = toks[1].split(/(\+|\-)/);
+
+    let sides = parseInt(toks[0]);
+
+    if(sides <= 0) {
+        message.reply(`Number of sides cannot be zero.`);
+        return;
+    }
+
+    let modifier = 0;
+
+    if(toks.length > 1) {
+        modifier = parseInt(toks[2]);
+        if(toks[1] === '-') {
+            modifier = -modifier;
+        }
+    }
+
+    if(numdice > 99 || sides > 9999 || modifier > 9999 || modifier < -9999) {
+        message.reply('Whatever you are doing that requires such a high dice roll must be spectacular! I don\'t really want to handle that for you though. Sorry.');
+        return;
+    }
+
+    let acc = 0;
+    let i = numdice;
+
+    let response = 'result: ';
+    let accumulationString = ' (';
+
+    while(i > 0) {
+        let roll = Math.ceil(Math.random() * sides);
+        acc += roll;
+        if(i < numdice) {
+            accumulationString += ` + `;
+        }
+        accumulationString += roll;
+        i--;
+    }
+    accumulationString += ')';
+
+    result = acc + modifier;
+    if(toks[1] === '-') {
+        response += result + accumulationString + ` - ${-modifier}`
+    }
+    else {
+        response += result + accumulationString + ` + ${modifier}`
+    }
+    message.reply(response);
+}
+
+/*
+function roll(message, args) {
     let sides;
     let modifier;
     if(args.length < 1) {
@@ -459,6 +540,7 @@ function rollDie(sides) {
     console.log(result);
     return result;
 }
+*/
 
 async function setChannel(message, args) {
     let guild = message.guild;
