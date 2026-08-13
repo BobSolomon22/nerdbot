@@ -140,7 +140,7 @@ client.on("messageCreate", function(message) {
             roll(message, args);
             break;
 
-        case 'printBirthdays':
+        case 'printbirthdays':
             printBirthdays(message);
             break;
 
