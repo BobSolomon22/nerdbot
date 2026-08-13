@@ -140,6 +140,10 @@ client.on("messageCreate", function(message) {
             roll(message, args);
             break;
 
+        case 'printbirthdays':
+            printBirthdays(message);
+            break;
+
         // ------admin only commands------
         
         case 'update':
@@ -484,6 +488,29 @@ function roll(message, args) {
     else {
         response += result + accumulationString + ` + ${modifier}`
     }
+    message.reply(response);
+}
+
+async function printBirthdays(message) {
+    let guild = message.guild;
+    let guildid = guild.id;
+    
+    let text = 'select users.username, birthmonth, birthdate from users inner join guildusers on users.userid = guildusers.userid where guildid = $1 order by birthmonth, birthdate asc';
+    let values = [guildid];
+
+    const result = await pool.query(text, values);
+
+    if (result.rowCount <= 0) {
+        message.reply('Nobody is registered with this server. Use &addme on this server to start building a birthday list!');
+        return;
+    }
+
+    let response = `Birthday List for ${guild}:`;
+
+    result.rows.forEach(person => {
+        response += `\n${person.username}: ${person.birthmonth}/${person.birthdate}`;
+    })
+
     message.reply(response);
 }
 
