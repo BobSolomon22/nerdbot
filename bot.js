@@ -507,7 +507,7 @@ async function printBirthdays(message) {
 
     let response = `Birthday List for ${guild}:`;
 
-    response.rows.forEach(person => {
+    result.rows.forEach(person => {
         response += `\n${person.username}: ${person.birthmonth}/${person.birthdate}`;
     })
 
