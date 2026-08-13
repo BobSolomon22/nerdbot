@@ -140,6 +140,10 @@ client.on("messageCreate", function(message) {
             roll(message, args);
             break;
 
+        case 'printBirthdays':
+            printBirthdays(message);
+            break;
+
         // ------admin only commands------
         
         case 'update':
