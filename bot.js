@@ -17,6 +17,32 @@ const pool = new Pool({
 
 const client = new Discord.Client({intents: ["GUILDS", "GUILD_MESSAGES","GUILD_MEMBERS","GUILD_PRESENCES"]});
 
+const help_message = `
+    Hello and welcome to NerdBot! This application uses & as a prefix by default. Here is the list of commands anybody can use:
+
+    &ping: Displays current uptime. This is the best way to verify the bot is running.
+
+    &register [birthmonth] [birthdate]: Registers you with NerdBot. Enter the birthday as numerals, e.g. &register 2 22.
+
+    &unregister: Removes you from NerdBot's registry. This will delete all data pertaining to you from NerdBot.
+
+    &addme: Adds you to the server you run it in to be announced on your birthday. You do not need to run this in the server you &register in.
+
+    &removeme: Removes you from the server you run it in, but you will still be registered with NerdBot. Your birthday will not be announced there.
+
+    &togglemessage: Toggles whether your birthday is announced in the server you run it in.
+
+    &status: Sends you a direct message which provides the user's registered birthday, admin status, and server message status for the server it is run in.
+
+    &roll: Format: &roll [number_of_dice]d[sides] [+|-modifier]. Modifier and number of dice are optional. Numbers above 9999 are not supported.
+    
+    &printbirthdays: Lists users' birthdays for those who have registered with NerdBot and added themselves to the current server.
+    
+    &help: Sends the user that runs this command this message.
+
+    If you have any further questions, please ask BobSolomon.
+`
+
 let prefix = "&";
 
 if(auth.debug == true) {
@@ -83,7 +109,7 @@ client.on("guildMemberRemove", member => {
             console.log(err.stack);
             return;
         }
-        else {
+    else {
             console.log(`Removed guild user ${member.user.username}`);
             guildMemberRemoveCheck(member);
         }
@@ -512,6 +538,11 @@ async function printBirthdays(message) {
     })
 
     message.reply(response);
+}
+
+function help(message) {
+    message.reply('Help message sent to your inbox.');
+    author.send(help_message); 
 }
 
 async function setChannel(message, args) {
