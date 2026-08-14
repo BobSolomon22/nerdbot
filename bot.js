@@ -169,6 +169,9 @@ client.on("messageCreate", function(message) {
         case 'printbirthdays':
             printBirthdays(message);
             break;
+	case 'help':
+	    help(message);
+	    break;
 
         // ------admin only commands------
         
