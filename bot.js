@@ -544,6 +544,7 @@ async function printBirthdays(message) {
 }
 
 function help(message) {
+    let author = message.author;
     message.reply('Help message sent to your inbox.');
     author.send(help_message); 
 }
